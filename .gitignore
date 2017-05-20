@@ -1,0 +1,6 @@
+gbdt/src/.tags
+gbdt/src/__pycache__/*
+gbdt/data/train_data/*
+gbdt/data/*
+gbdt/output/*
+lr/code/*.out
