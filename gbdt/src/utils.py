@@ -12,7 +12,6 @@ __author__ = 'chenhch8'
 # 导入全局变量
 from globalVar import *
 init()
-# set_value('SUM', 100000)
 set_value('SUM', 1866819)
 set_value('FEATURE', 201)
 
@@ -166,10 +165,6 @@ def decrease(feature, lists):
     result.append(np.random.choice(v, 1)[0])
   return result
 
-  # if n >= len(lists):
-  #   return lists
-  # return np.random.choice(lists, n)
-
 
 '''
 将字典保存到文件中
@@ -186,46 +181,3 @@ def loadJson(filename):
   with open(filename, 'r') as file:
     obj = file.read()
   return json.loads(obj)
-
-
-# '''
-# 数据预处理
-# '''
-# from collections import defaultdict
-# import json
-
-
-
-# def __dataPreprocess():
-#   print('数据预处理')
-#   for i in range(train_data.shape[0]):
-#     obj = defaultdict(lambda: None)
-#     for j in range(train_data.shape[1]):
-#       if obj[train_data[i][j]] == None:
-#         obj[train_data[i][j]] = []
-#       obj[train_data[i][j]].append(j)
-#     obj = json.dumps(obj)
-#     with open('../data/train_data/' + str(i) + '.json', 'w') as file:
-#       file.write(obj)
-
-# ****** test ****** #
-
-train_data = np.array([[1,9,0,55,98,36,986,1000,2020],
-                       [102,301,20,65,95,3,8,56,11],
-                       [10,32,41,51,21,6,4,58,97]])
-
-if __name__ == '__main__':
-  # loadTrainData('../data/train_data.txt')
-  # __dataPreprocess()
-  index = list(range(9))
-  mid = 9
-  raw = 0
-  k = quitSlice(raw, 0, 8, mid, index)
-  print('k =', k)
-  j = 0
-  for i in index:
-    if train_data[raw][i] < mid:
-      print('[1]', train_data[raw][i], '(', j, ')')
-    else:
-      print('[2]', train_data[raw][i], '(', j, ')')
-    j += 1
