@@ -1,4 +1,3 @@
-<script type="text/javascript" async src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-MML-AM_CHTML"> </script>
 ### 基于GBDT的机器学习
 #### 算法总述
 - GBDT是boosting算法的一种——将多个弱学习器，通过加法模型，组合成一个强学习器。对于GBDT而言，其弱分类器就是决策树，采用的代价函数就是参差，其核心思想是，通过不断地增加决策树的数量，来使得参**差逐**渐缩小直至为0（实际上达到0的概率很低）。在预测的时候，则通过累加每棵决策树的预测结果，得到的最终结果即为预测值
@@ -81,3 +80,4 @@ $$=\frac{1}{|Y_j|}\left(\frac{1}{|Y_j|}\sum_{y\in Y_j}y^2-2\arg y_j|Y_j|\arg y_j
 
 ### 链接
 - [训练测试数据集](https://pan.baidu.com/s/1dFGeSgx)
+
