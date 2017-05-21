@@ -1,7 +1,0 @@
-src/.tags/*
-src/__pycache__/*
-data/train_data/*
-data/*.py
-data/train_data_small.txt
-test.py
-output_dtrees/*
