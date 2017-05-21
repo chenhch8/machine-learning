@@ -50,8 +50,9 @@ class GDBT(object):
     # print('dfhsfhsfhfhshf',train_data.shape[1])
     print('开始训练 %d 棵树，每颗树叶子结点为 %d' % (self.tree_size, self.leaf_size))
     start = time.time()
+    dtree = DTree(self.leaf_size)
     for i in range(self.tree_size):
-      dtree = DTree(self.leaf_size)
+      dtree.setTree({})
       print('训练第 #%d 棵树...' % (i + 1))
       # [1] 匹配最优残差决策树
       dtree.build(trainDataIndex, features.copy())
@@ -62,7 +63,7 @@ class GDBT(object):
       if mean < 0.05:
         break
     end = time.time()
-    print('训练完成，用时 %ss' % (end - start))
+    print('训练完成，用时 %smin' % ((end - start) / 60.0))
     # [3] 保存决策树集合
     saveJson('../output/gbdt_result.json', self.dtrees)
     # [4] 测试样本测试
