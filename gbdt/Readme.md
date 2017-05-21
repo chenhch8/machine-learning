@@ -46,13 +46,11 @@ def updateErrs(samples, tree, errs):
 
 ### 数学推导
 - 残差计算：$$ Var(\{Y_1,\dots,Y_l\})=\sum_{j=1}^l\frac{Y_j}{Y}Var(Y_j)=\sum_{j=1}^l\frac{|Y_j|}{|Y|}\left(\frac{1}{|Y_j|}\sum_{y\in Y_j}y^2-\arg^2y_j\right) $$
-
 $$ =\frac{1}{|Y|}\sum_{y\in Y}y^2-\sum_{j=1}^l\frac{|Y_j|}{Y}\arg^2y_j $$
 
 其中
 $$ Var(Y_j)=\frac{1}{|Y_j|}\sum_{y\in _j}\left(y-\arg y_j\right)^2=\frac{1}{|Y_j|}\sum_{y\in Y_j}y^2-2\arg y_j\sum_{y\in Y_j}y+\sum_{y\in Y_j}\arg^2{y_j}=\frac{1}{|Y_j|}\left(\frac{1}{|Y_j|}\sum_{y\in Y_j}y^2-2\arg y_j|Y_j|\arg y_j+|X|\arg^2y_j\right) $$
-
-$$=\frac{1}{|Y_j|}\sum_{y\in Y_j}y^2-\arg^2y_j $$
+$$ =\frac{1}{|Y_j|}\sum_{y\in Y_j}y^2-\arg^2y_j $$
 
 其中 $ \arg y_j=\frac{1}{|Y_j|}\sum_{y\in Y_j}y $
 
