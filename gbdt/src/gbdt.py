@@ -52,7 +52,6 @@ class GDBT(object):
     start = time.time()
     dtree = DTree(self.leaf_size)
     for i in range(self.tree_size):
-      dtree.setTree({})
       print('训练第 #%d 棵树...' % (i + 1))
       # [1] 匹配最优残差决策树
       dtree.build(trainDataIndex, features.copy())
@@ -60,6 +59,8 @@ class GDBT(object):
       mean = self.__calcLoss(dtree)
       # [3] 将生成的决策树加入树集合中
       self.dtrees['tree_' + str(i)] = dtree.getTree()
+      # [4] 清除tree，给下一轮迭代使用
+      dtree.setTree({})
       if mean < 0.05:
         break
     end = time.time()
