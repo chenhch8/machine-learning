@@ -22,6 +22,9 @@ class DTree(object):
     global train_data, train_class
     train_data = get_value('train_data')
     train_class = get_value('train_class')
+    self.min_size = int(train_data.shape[1] * 0.001)
+    self.max_size = int(train_data.shape[1] * 0.005)
+    print('maxSize = %d; min_size = %d' % (self.max_size, self.min_size))
 
   def __findBestBoundary(self, trainDataIndex, features):
     '''寻找最优分割——返回第几个样本，第几个特征'''
@@ -97,24 +100,25 @@ class DTree(object):
       leftDataIndex, rightDataIndex = quitSlice(feature,
                                                 train_data[feature][index],
                                                 currDataIndex)
-
       # 删除选定特征
       currFeatures.remove(feature)
       ls, rs = len(leftDataIndex), len(rightDataIndex)
       # 设置叶子节点元素数量，防止过拟合
-      if ls > 1000 and ls <= 5000:
+      if ls > self.min_size and ls <= self.max_size:
         self.__setLeaf(leftDataIndex, currTree)
-      if rs > 1000 and rs <= 5000:
+      if rs > self.min_size and rs <= self.max_size:
         self.__setLeaf(rightDataIndex, currTree)
 
-      if ls > 5000 and rs > 5000:
+      if ls > self.max_size and rs > self.max_size:
         self.__setNLeaf(feature, index, currTree)
         self.leaf.put((leftDataIndex, currFeatures.copy(), currTree['less']))
         self.leaf.put((rightDataIndex, currFeatures, currTree['greater']))
-      elif ls < 5000 and rs > 5000:
+      elif ls < self.min_size and rs > self.max_size:
         self.leaf.put((rightDataIndex, currFeatures, currTree))
-      elif ls > 5000 and rs < 5000:
+      elif ls > self.max_size and rs < self.min_size:
         self.leaf.put((leftDataIndex, currFeatures, currTree))
+      else:
+        self.__setLeaf(currDataIndex, currTree)
     # 保存叶子结点
     while self.leaf.empty() != True:
       currDataIndex, currFeatures, currTree = self.leaf.get()

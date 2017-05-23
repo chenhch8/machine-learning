@@ -5,38 +5,43 @@
 __author__ = 'chenhch8'
 
 # 导入全局变量
-from globalVar import get_value
+from globalVar import get_value, get_value
 
-from utils import saveJson
-from utils import loadJson
+from utils import saveJson, loadJson
 
 from dtree import DTree
 import time
 import numpy as np
 from collections import defaultdict
 
+
 class GDBT(object):
 
-  def __init__(self, tree_size, leaf_size):
+  def __init__(self, tree_size, leaf_size, learning_rate):
     # 树数量
     self.tree_size = tree_size
     # 叶子数量
     self.leaf_size = leaf_size
+    # 学习率
+    self.learning_rate = learning_rate
     # 决策树
     self.dtrees = {}
     global train_data, train_class
     train_data = get_value('train_data')
     train_class = get_value('train_class')
+    print('hshshshdhhd')
+
 
   def __calcLoss(self, dtree):
     # 此处有问题，无法获得global train_data等，需手动装入，待调试
     train_data = get_value('train_data')
     train_class = get_value('train_class')
+    goal_error = get_value('goal_error')
     
     train_data = train_data.T
     for index, data in enumerate(train_data):
       i = dtree.predict(data)
-      train_class[index] -= i
+      train_class[index] -= i; goal_error[index] = train_class[index] * learning_rate
       # print('train_data[%s]=%s;predict=%s' % (index, train_class[index], i))
     train_data = train_data.T
     mean = np.mean(abs(train_class))
@@ -47,6 +52,7 @@ class GDBT(object):
   def buildGDBT(self):
     trainDataIndex = list(range(train_data.shape[1]))
     features = list(range(train_data.shape[0]))
+    set_value('goal_error', train_class.copy() * self.learning_rate)
     # print('dfhsfhsfhfhshf',train_data.shape[1])
     print('开始训练 %d 棵树，每颗树叶子结点最多为 %d' % (self.tree_size, self.leaf_size))
     start = time.time()
@@ -70,6 +76,7 @@ class GDBT(object):
     # [4] 测试样本测试
     self.predictTestData()
 
+
   def __predictHelper(self, my_data, my_class, name):
     dtree = DTree(self.leaf_size)
     count = 0
@@ -88,6 +95,7 @@ class GDBT(object):
     pried = end - start
     print('\t总耗时：%ss； 平均耗时：%ss' % (pried, pried / my_class.shape[0]))
 
+
   def predictTestData(self):
     '''误差计算'''
     if len(self.dtrees) == 0:
@@ -98,21 +106,6 @@ class GDBT(object):
     test_data, test_class = get_value('test_data'), get_value('test_class')
     self.__predictHelper(test_data, test_class, '测试集')
 
-    # dtree = DTree(self.leaf_size)
-    # count = 0
-    # start = time.time()
-    # for i in range(test_data.shape[0]):
-    #   v = 0
-    #   for k in self.dtrees:
-    #     dtree.setTree(self.dtrees[k])
-    #     v += dtree.predict(test_data[i])
-    #   v = 1 if v >= 0.5 else 0
-    #   # print('#%s 预测值： %s； 真实值： %s' % (i+1, v, test_class[i]))
-    #   count += abs(v - test_class[i])
-    # end = time.time()
-    # print('分类错误数为：%s； 错误率：%s' % (count, count / test_data.shape[0]))
-    # pried = end - start
-    # print('总耗时：%ss； 平均耗时：%ss' % (pried, pried / test_class.shape[0]))
 
   def startPredict(self, filename, test_filename, saveName):
     '''预测'''

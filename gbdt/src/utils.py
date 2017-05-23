@@ -35,7 +35,7 @@ def loadTrainData(filename, pen = 0.9):
     global train_data, train_class
     # 训练集特征矩阵
     train_data = np.zeros((train_sum, FEATURE), dtype=float)
-    train_class = np.zeros((train_sum, 2), dtype=float)
+    train_class = np.zeros(train_sum, dtype=float)
     # 测试集特征矩阵
     test_data = np.zeros((test_sum, FEATURE), dtype=float)
     test_class = np.zeros(test_sum, dtype=int)
@@ -43,7 +43,7 @@ def loadTrainData(filename, pen = 0.9):
     for index, value in enumerate(file.readlines()):
       value = value.split(' ')
       if index < train_sum:
-        train_class[index][value[0]] = value[0]
+        train_class[index] = value[0]
         value = list(map(lambda x: x.split(':'), value[1:]))
         for v in value:
           train_data[index][int(v[0])-1] = v[1]
