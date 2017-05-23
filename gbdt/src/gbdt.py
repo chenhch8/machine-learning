@@ -48,7 +48,7 @@ class GDBT(object):
     trainDataIndex = list(range(train_data.shape[1]))
     features = list(range(train_data.shape[0]))
     # print('dfhsfhsfhfhshf',train_data.shape[1])
-    print('开始训练 %d 棵树，每颗树叶子结点为 %d' % (self.tree_size, self.leaf_size))
+    print('开始训练 %d 棵树，每颗树叶子结点最多为 %d' % (self.tree_size, self.leaf_size))
     start = time.time()
     dtree = DTree(self.leaf_size)
     for i in range(self.tree_size):
@@ -68,22 +68,51 @@ class GDBT(object):
     # [3] 保存决策树集合
     saveJson('../output/gbdt_result.json', self.dtrees)
     # [4] 测试样本测试
-    self.__predictTestData()
+    self.predictTestData()
 
-  def __predictTestData(self):
-    '''测试样本测试'''
-    test_data, test_class = get_value('test_data'), get_value('test_class')
+  def __predictHelper(self, my_data, my_class, name):
     dtree = DTree(self.leaf_size)
     count = 0
-    for i in range(test_data.shape[0]):
+    start = time.time()
+    for i in range(my_data.shape[0]):
       v = 0
       for k in self.dtrees:
         dtree.setTree(self.dtrees[k])
-        v += dtree.predict(test_data[i])
+        v += dtree.predict(my_data[i])
       v = 1 if v >= 0.5 else 0
-      # print('#%s 预测值： %s； 真实值： %s' % (i+1, v, test_class[i]))
-      count += abs(v - test_class[i])
-    print('分类错误数为：%s； 错误率：%s' % (count, count / test_data.shape[0]))
+      # print('#%s 预测值： %s； 真实值： %s' % (i+1, v, my_class[i]))
+      count += abs(v - my_class[i])
+    end = time.time()
+    print('%s：' % name)
+    print('\t分类错误数为：%s； 错误率：%s' % (count, count / my_data.shape[0]))
+    pried = end - start
+    print('\t总耗时：%ss； 平均耗时：%ss' % (pried, pried / my_class.shape[0]))
+
+  def predictTestData(self):
+    '''误差计算'''
+    if len(self.dtrees) == 0:
+      self.dtrees = loadJson('../output/gbdt_result.json')
+    print('误差计算中...')
+    self.__predictHelper(train_data.T, train_class, '训练集')
+
+    test_data, test_class = get_value('test_data'), get_value('test_class')
+    self.__predictHelper(test_data, test_class, '测试集')
+
+    # dtree = DTree(self.leaf_size)
+    # count = 0
+    # start = time.time()
+    # for i in range(test_data.shape[0]):
+    #   v = 0
+    #   for k in self.dtrees:
+    #     dtree.setTree(self.dtrees[k])
+    #     v += dtree.predict(test_data[i])
+    #   v = 1 if v >= 0.5 else 0
+    #   # print('#%s 预测值： %s； 真实值： %s' % (i+1, v, test_class[i]))
+    #   count += abs(v - test_class[i])
+    # end = time.time()
+    # print('分类错误数为：%s； 错误率：%s' % (count, count / test_data.shape[0]))
+    # pried = end - start
+    # print('总耗时：%ss； 平均耗时：%ss' % (pried, pried / test_class.shape[0]))
 
   def startPredict(self, filename, test_filename, saveName):
     '''预测'''

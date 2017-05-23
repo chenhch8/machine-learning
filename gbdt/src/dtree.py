@@ -86,33 +86,40 @@ class DTree(object):
     self.leaf.put((trainDataIndex, features, self.tree))
     # 开始创建
     while self.leaf.qsize() < self.leaf_size and self.leaf.empty() == False:
+      # print(self.leaf.qsize())
       currDataIndex, currFeatures, currTree = self.leaf.get()
+      if len(currFeatures) == 1:
+        self.__setLeaf(currDataIndex, currTree)
+        continue
       # 寻找最优分裂点
       index, feature = self.__findBestBoundary(currDataIndex, currFeatures)
-      # 找出分裂坐标
-      ptr = quitSlice(feature,
-                      0,
-                      len(currDataIndex) - 1,
-                      train_data[feature][index],
-                      currDataIndex)
-      # 去掉已选定的特征
+      # 分裂
+      leftDataIndex, rightDataIndex = quitSlice(feature,
+                                                train_data[feature][index],
+                                                currDataIndex)
+
+      # 删除选定特征
       currFeatures.remove(feature)
-      if ptr == 1: # 结点只有一个元素
-        self.__setLeaf([currDataIndex[0]], currTree)
-      elif ptr == len(currDataIndex) - 1 or ptr == 0: # 只有一个分支，则与父结点合并
-        self.leaf.put((currDataIndex, currFeatures, currTree))
-      else: # 有两个分枝
-        leftDataIndex = currDataIndex[:ptr]
-        rightDataIndex = currDataIndex[ptr:]
-        # 设置非叶结点
+      ls, rs = len(leftDataIndex), len(rightDataIndex)
+      # 设置叶子节点元素数量，防止过拟合
+      if ls > 1000 and ls <= 5000:
+        self.__setLeaf(leftDataIndex, currTree)
+      if rs > 1000 and rs <= 5000:
+        self.__setLeaf(rightDataIndex, currTree)
+
+      if ls > 5000 and rs > 5000:
         self.__setNLeaf(feature, index, currTree)
         self.leaf.put((leftDataIndex, currFeatures.copy(), currTree['less']))
         self.leaf.put((rightDataIndex, currFeatures, currTree['greater']))
-
+      elif ls < 5000 and rs > 5000:
+        self.leaf.put((rightDataIndex, currFeatures, currTree))
+      elif ls > 5000 and rs < 5000:
+        self.leaf.put((leftDataIndex, currFeatures, currTree))
     # 保存叶子结点
     while self.leaf.empty() != True:
       currDataIndex, currFeatures, currTree = self.leaf.get()
       self.__setLeaf(currDataIndex, currTree)
+
 
   def getTree(self):
     return self.tree
@@ -131,6 +138,7 @@ class DTree(object):
           tree = tree['greater']
       return tree['predict']
     except KeyError:
+      print(self.tree)
       print(tree)
       print('sample[tree[feature]]=%s; tree[value]=%s' % (sample[tree['feature']], tree['value']))
       raise KeyError

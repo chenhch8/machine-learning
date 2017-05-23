@@ -2,6 +2,8 @@ gbdt/src/.tags
 gbdt/src/__pycache__/*
 gbdt/data/train_data/*
 gbdt/data/*
+gbdt/net/*
 !/gbdt/data/数据格式说明.txt
 gbdt/output/*
 lr/code/*.out
+2/*
