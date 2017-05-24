@@ -5,7 +5,7 @@
 __author__ = 'chenhch8'
 
 # 导入全局变量
-from globalVar import get_value, get_value
+from globalVar import get_value, set_value
 
 from utils import saveJson, loadJson
 
@@ -32,43 +32,38 @@ class GDBT(object):
     print('hshshshdhhd')
 
 
-  def __calcLoss(self, dtree):
+  def __calcLoss(self):
     # 此处有问题，无法获得global train_data等，需手动装入，待调试
-    train_data = get_value('train_data')
-    train_class = get_value('train_class')
-    goal_error = get_value('goal_error')
+    F, residual = get_value('F'), get_value('residual')
     
-    train_data = train_data.T
-    for index, data in enumerate(train_data):
-      i = dtree.predict(data)
-      train_class[index] -= i; goal_error[index] = train_class[index] * learning_rate
-      # print('train_data[%s]=%s;predict=%s' % (index, train_class[index], i))
-    train_data = train_data.T
-    mean = np.mean(abs(train_class))
-    print('均方误差为：%s' % mean)
-    return mean
+    for index in range(train_class.shape[0]):
+      residual[index] = train_class[index] - F[index]
+
+    mean = np.mean(abs(residual))
+    print('均值残差：%s' % mean)
 
 
   def buildGDBT(self):
     trainDataIndex = list(range(train_data.shape[1]))
     features = list(range(train_data.shape[0]))
-    set_value('goal_error', train_class.copy() * self.learning_rate)
-    # print('dfhsfhsfhfhshf',train_data.shape[1])
-    print('开始训练 %d 棵树，每颗树叶子结点最多为 %d' % (self.tree_size, self.leaf_size))
+    # 设置估计值
+    set_value('F', np.zeros(train_class.shape, dtype=float))
+    # 设置残差
+    set_value('residual', np.zeros(train_class.shape, dtype=float))
+
+    print('开始训练 %d 棵树，每颗树叶子结点最多为 %d, 学习率为 %s' % (self.tree_size, self.leaf_size, self.learning_rate))
     start = time.time()
-    dtree = DTree(self.leaf_size)
+    dtree = DTree(self.leaf_size, self.learning_rate)
     for i in range(self.tree_size):
       print('训练第 #%d 棵树...' % (i + 1))
-      # [1] 匹配最优残差决策树
+      # [1] 计算残差
+      self.__calcLoss()
+      # [2] 匹配最优残差决策树 + 更新估计值
       dtree.build(trainDataIndex, features.copy())
-      # [2] 更新残差
-      mean = self.__calcLoss(dtree)
       # [3] 将生成的决策树加入树集合中
       self.dtrees['tree_' + str(i)] = dtree.getTree()
       # [4] 清除tree，给下一轮迭代使用
       dtree.setTree({})
-      if mean < 0.05:
-        break
     end = time.time()
     print('训练完成，用时 %smin' % ((end - start) / 60.0))
     # [3] 保存决策树集合
@@ -78,7 +73,7 @@ class GDBT(object):
 
 
   def __predictHelper(self, my_data, my_class, name):
-    dtree = DTree(self.leaf_size)
+    dtree = DTree(self.leaf_size, self.learning_rate)
     count = 0
     start = time.time()
     for i in range(my_data.shape[0]):

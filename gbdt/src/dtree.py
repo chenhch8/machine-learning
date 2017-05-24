@@ -12,11 +12,13 @@ import numpy as np
 import queue
 
 class DTree(object):
-  def __init__(self, leaf_size = 50):
+  def __init__(self, leaf_size, learing_rate):
     # 叶子节点数
     self.leaf_size = leaf_size
     # 叶子节点值
     self.leaf = queue.Queue(maxsize=leaf_size)
+    # 学习率
+    self.learing_rate = learing_rate
     # 决策树
     self.tree = {}
     global train_data, train_class
@@ -81,17 +83,23 @@ class DTree(object):
     _tree['greater'] = {}
 
   def __setLeaf(self, trainIndex, _tree):
-    _tree['predict'] = calcMean(trainIndex)
+    _tree['predict'] = calcMean(trainIndex) * self.learing_rate
     _tree['isLeaf'] = True
+    # 更新估计值
+    F = get_value('F')
+    for index in trainIndex:
+      F[index] += _tree['predict']
 
   def build(self, trainDataIndex, features):
     '''建造DTree'''
+    count = 0
     self.leaf.put((trainDataIndex, features, self.tree))
     # 开始创建
     while self.leaf.qsize() < self.leaf_size and self.leaf.empty() == False:
       # print(self.leaf.qsize())
       currDataIndex, currFeatures, currTree = self.leaf.get()
       if len(currFeatures) == 1:
+        count += 1
         self.__setLeaf(currDataIndex, currTree)
         continue
       # 寻找最优分裂点
@@ -105,8 +113,10 @@ class DTree(object):
       ls, rs = len(leftDataIndex), len(rightDataIndex)
       # 设置叶子节点元素数量，防止过拟合
       if ls > self.min_size and ls <= self.max_size:
+        count += 1
         self.__setLeaf(leftDataIndex, currTree)
       if rs > self.min_size and rs <= self.max_size:
+        count += 1
         self.__setLeaf(rightDataIndex, currTree)
 
       if ls > self.max_size and rs > self.max_size:
@@ -118,11 +128,14 @@ class DTree(object):
       elif ls > self.max_size and rs < self.min_size:
         self.leaf.put((leftDataIndex, currFeatures, currTree))
       else:
+        count += 1
         self.__setLeaf(currDataIndex, currTree)
     # 保存叶子结点
     while self.leaf.empty() != True:
+      count += 1
       currDataIndex, currFeatures, currTree = self.leaf.get()
       self.__setLeaf(currDataIndex, currTree)
+    print('叶子结点数：%s' % count)
 
 
   def getTree(self):

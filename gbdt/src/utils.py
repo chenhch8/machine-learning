@@ -12,8 +12,8 @@ __author__ = 'chenhch8'
 # 导入全局变量
 from globalVar import *
 init()
-# set_value('SUM', 1866819)
-set_value('SUM', 100000)
+set_value('SUM', 1866819)
+# set_value('SUM', 100000)
 set_value('FEATURE', 201)
 
 SUM = get_value('SUM')
@@ -116,11 +116,11 @@ def __swap(indexList, i, j):
 计算均值
 '''
 def calcMean(trainDataIndex):
-  global train_class
+  residual = get_value('residual')
   sum = 0
   for i in trainDataIndex:
-    sum += train_class[i]
-  return sum / len(train_class)
+    sum += residual[i]
+  return sum / len(residual)
 
 
 '''
