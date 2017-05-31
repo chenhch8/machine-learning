@@ -29,16 +29,12 @@ class GDBT(object):
     global train_data, train_class
     train_data = get_value('train_data')
     train_class = get_value('train_class')
-    print('hshshshdhhd')
 
 
   def __calcLoss(self):
-    # 此处有问题，无法获得global train_data等，需手动装入，待调试
     F, residual = get_value('F'), get_value('residual')
-    
     for index in range(train_class.shape[0]):
       residual[index] = train_class[index] - F[index]
-
     mean = np.mean(abs(residual))
     print('均值残差：%s' % mean)
 
@@ -52,8 +48,8 @@ class GDBT(object):
     set_value('residual', np.zeros(train_class.shape, dtype=float))
 
     print('开始训练 %d 棵树，每颗树叶子结点最多为 %d, 学习率为 %s' % (self.tree_size, self.leaf_size, self.learning_rate))
-    start = time.time()
     dtree = DTree(self.leaf_size, self.learning_rate)
+    start = time.time()
     for i in range(self.tree_size):
       print('训练第 #%d 棵树...' % (i + 1))
       # [1] 计算残差
@@ -82,7 +78,6 @@ class GDBT(object):
         dtree.setTree(self.dtrees[k])
         v += dtree.predict(my_data[i])
       v = 1 if v >= 0.5 else 0
-      # print('#%s 预测值： %s； 真实值： %s' % (i+1, v, my_class[i]))
       count += abs(v - my_class[i])
     end = time.time()
     print('%s：' % name)

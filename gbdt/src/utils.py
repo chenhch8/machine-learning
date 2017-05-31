@@ -12,8 +12,9 @@ __author__ = 'chenhch8'
 # 导入全局变量
 from globalVar import *
 init()
-set_value('SUM', 1866819)
+# set_value('SUM', 1866819)
 # set_value('SUM', 100000)
+set_value('SUM', 10000)
 set_value('FEATURE', 201)
 
 SUM = get_value('SUM')

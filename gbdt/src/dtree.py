@@ -12,7 +12,8 @@ import numpy as np
 import queue
 
 class DTree(object):
-  def __init__(self, leaf_size, learing_rate):
+  def __init__(self, leaf_size = 0, learing_rate = 0):
+    if leaf_size == 0: return
     # 叶子节点数
     self.leaf_size = leaf_size
     # 叶子节点值
@@ -26,14 +27,13 @@ class DTree(object):
     train_class = get_value('train_class')
     self.min_size = int(train_data.shape[1] * 0.001)
     self.max_size = int(train_data.shape[1] * 0.005)
-    print('maxSize = %d; min_size = %d' % (self.max_size, self.min_size))
 
   def __findBestBoundary(self, trainDataIndex, features):
     '''寻找最优分割——返回第几个样本，第几个特征'''
     max = None
     size = len(trainDataIndex)
     # [1] 随机抽取500个
-    randomIndex = pitch(trainDataIndex, 500)
+    randomIndex = pitch(trainDataIndex, 1000)
     # print(randomIndex)
     for feature in features:
       # 特征值去重
@@ -48,6 +48,7 @@ class DTree(object):
         max = var; ptr_boundery = boundery; ptr_feature = feature
     # 返回第几个样本，第几个特征
     return ptr_boundery, ptr_feature
+
 
   def __bestBoundary(self, feature, randomIndex):
     '''寻找最优分割——最小化方差'''
@@ -147,15 +148,9 @@ class DTree(object):
   def predict(self, sample):
     '''对sample进行预测'''
     tree = self.tree
-    try:
-      while tree['isLeaf'] != True:
-        if sample[tree['feature']] < tree['value']:
-          tree = tree['less']
-        else:
-          tree = tree['greater']
-      return tree['predict']
-    except KeyError:
-      print(self.tree)
-      print(tree)
-      print('sample[tree[feature]]=%s; tree[value]=%s' % (sample[tree['feature']], tree['value']))
-      raise KeyError
+    while tree['isLeaf'] != True:
+      if sample[tree['feature']] < tree['value']:
+        tree = tree['less']
+      else:
+        tree = tree['greater']
+    return tree['predict']
