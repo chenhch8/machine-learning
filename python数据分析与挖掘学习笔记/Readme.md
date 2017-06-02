@@ -1,7 +1,7 @@
 [TOC]
 # python数据挖掘学习笔记
 # 基础篇
-## [chapter3 数据探索](code/chapter3)
+## [chapter3 数据探索](src/chapter3)
 #### 3.1 数据质量分析
 ##### 3.1.2 缺失值分析
 ##### 3.1.2 异常值分析
