@@ -1,5 +1,5 @@
 * [3.1 数据质量分析](#31-数据质量分析)
-    * [3.1.2 缺失值分析](#312-缺失值分析)
+    * [3.1.1 缺失值分析](#311-缺失值分析)
     * [3.1.2 异常值分析](#312-异常值分析)
     * [3.1.3 一致性分析](#313-一致性分析)
 * [3.2 数据特征分析](#32-数据特征分析)
@@ -16,7 +16,9 @@
     * [3.3.2 拓展统计特征函数](#332-拓展统计特征函数)
     * [3.3.3 统计作图函数](#333-统计作图函数)
 
-## chapter3
+## chapter3 数据探索
+1. 本章目的：从**数据质量分析**和**数据特征分析**对数据进行探索分析。数据质量分析是在拿到数据时，用于检测是否存在缺失值和异常值；数据特征分析则在数据挖掘建模前，通过频率分布分析、对比分析、帕累托分析、周期性分析、相关性分析等方法，对数据规律进行分析，以了解数据的规律和趋势，为数据挖掘的后续环节提供支持。 
+
 ### 3.1 数据质量分析
 #### 3.1.1 缺失值分析
 1. 分析方法：简单的统计分析
@@ -134,22 +136,22 @@
 #### 3.3.1 基本统计函数
 | 函数名 | 函数功能 | 使用方式| 所属库 |
 | :----: | :----: | :----: | :----: |
-| sum() | **按列**计算数据样本的总和 | DataFram/Series.sum() | Pandas |
-| mean() | 样本的算数平均值 | DataFram/Series.mean() | Pandas |
-| var() | 样本方差 | DataFram/Series.var() | Pandas |
-| std() | 标准差 | DataFram/Series.std() | Pandas |
-| corr() | Spearman(Pearson)相关系数矩阵 | DataFram.corr(method='pearson')（参数支持pearson(皮卡森相关系数，默认选项)、kendall(肯德尔系数)、spearman(斯皮卡尔曼系数)）| Pandas |
-| cov() | 样本协方差矩阵 | DataFram.cov() or Series.cov(Secies)（计算两个Series之间的协方差） | Pandas |
-| skew()/kurt() | 样本值的偏度（三阶矩/四阶度）| DataFram/Series.skew()/kurt() | Pandas |
-| describe() | 样本的基本描述（均值、标准差、四分位等）| DataFram/Series.describe() | Pandas |
+| sum() | **按列**计算数据样本的总和 | DataFrame/Series.sum() | Pandas |
+| mean() | 样本的算数平均值 | DataFrame/Series.mean() | Pandas |
+| var() | 样本方差 | DataFrame/Series.var() | Pandas |
+| std() | 标准差 | DataFrame/Series.std() | Pandas |
+| corr() | Spearman(Pearson)相关系数矩阵 | DataFrame.corr(method='pearson')（参数支持pearson(皮卡森相关系数，默认选项)、kendall(肯德尔系数)、spearman(斯皮卡尔曼系数)）| Pandas |
+| cov() | 样本协方差矩阵 | DataFrame.cov() or Series.cov(Secies)（计算两个Series之间的协方差） | Pandas |
+| skew()/kurt() | 样本值的偏度（三阶矩/四阶度）| DataFrame/Series.skew()/kurt() | Pandas |
+| describe() | 样本的基本描述（均值、标准差、四分位等）| DataFrame/Series.describe() | Pandas |
 
 #### 3.3.2 拓展统计特征函数
 | 函数名 | 函数功能 | 使用方式| 所属库 |
 | :----: | :----: | :----: | :----: |
-| cummax() | 依次给出前 $1、2、\dots、n$ 个数的最大值 | DataFram/Series.cummax() | Pandas |
-| cummin() | ... | DataFram/Series.cummin() | Pandas |
-| rolling_sum() | **按列**计算样本总和 | pd.rolling_sum(DataFram/Series, k)，每k列依次计算一次和 | Pandas |
-| rolling_mean() | **按列**计算样本算数平均数 | pd.rolling_mean(DataFram/Series, k)，每k列计算依次均值 | Pandas |
+| cummax() | 依次给出前 $1、2、\dots、n$ 个数的最大值 | DataFrame/Series.cummax() | Pandas |
+| cummin() | ... | DataFrame/Series.cummin() | Pandas |
+| rolling_sum() | **按列**计算样本总和 | pd.rolling_sum(DataFrame/Series, k)，每k列依次计算一次和 | Pandas |
+| rolling_mean() | **按列**计算样本算数平均数 | pd.rolling_mean(DataFrame/Series, k)，每k列计算依次均值 | Pandas |
 | rolling_var() | ... | ... | ... |
 | rolling_std() | ... | ... | ... |
 | rolling_corr() | ... | ... | ... |
@@ -158,11 +160,39 @@
 | rolling_kurt() | ... | ... | ... |
 
 #### 3.3.3 统计作图函数
+1. 常见函数
+
 | 作图函数名 | 作图函数功能 | 所属工具箱 |
 | :----: | :----: | :----: |
 | plot() | 线性二维图，折线图 | Matplotlib/Pandas |
-| pie() | 饼行图 | Matplotlib/Pandas |
+| pie() | 饼型图 | Matplotlib/Pandas |
 | hist() | 二维条形直方图 | Matplotlib/Pandas |
 | boxplot() | 箱形图 | Matplotlib/Pandas |
 | plot(logy=True) | y轴的对数图形 | Pandas |
 | plot(yerr=error) | 误差条形图 | Pandas |
+
+2. 使用方法：
+    - plot
+        - plt.plot(x,y,S)：绘制 $y$ 关于 $x$ 的二维图像，字符串 $S$ 指定绘制时的图形类型、样式和颜色，常见选项有：'b'——蓝色、'r'——红色、'g'——绿色、'o'——圆圈、'+'——加号标记、'-'——实线、'--'——虚线。可组合使用，如'bo--'。若 $x$ 和 $y$ 是实数向量时，则描出点后用直线依次相连
+        - DataFrame/Series.plot(kind='box')：默认以index为横坐标，每列数据为纵坐标，通过kind参数指定作图类型，支持line（线）、bar（条形）、barh、hist（直方图）、box（箱线图）、kde（密度图）、area、pie（饼图），也能接受plt.plot()的参数
+    - pie
+        - plt.pie(size, explode=.., colors=.., labels=..)：size是一个列表，记录各个扇区，记录各个扇区的比例 
+    - hist
+        - plt.hist(x, y)：x 是一个向量，y 可为实数或者向量
+            - 若 y 是一个实数 n，则表示分成 n 组。处理过程如下：
+                1. 间距 = (max-min)/组数
+                2. 根据间距和组数划分若区域
+                3. 统计在各个区域中有集合 x 的元素的数量
+                4. 绘制各个区域的统计结果
+            - 若 y 是一个向量，则 y 的大小必须与 x 一样。处理过程如下：
+                1. x 与 y 的元素一一对应，如 x[i] 对应 y[i]
+                2. 以 x[i] 为下标，y[i] 为高开始绘制
+    - boxplot
+        - DataFrame.box() or DataFrame/Series.plot(kind='box')
+    - plot(logx = True) / plot(logy = True)
+        - 绘制 x 或 y 轴的对数图形
+        - DataFrame/Series.plot(...)
+    - plot(yerr = error)
+        - 误差条形图
+        - DataFrame/Series,plot(yerr = error)：error 是误差列
+3. [样例代码](code/diagram_func.py)
