@@ -47,6 +47,7 @@ class DTree(object):
       elif max < var:
         max = var; ptr_boundery = boundery; ptr_feature = feature
     # 返回第几个样本，第几个特征
+    print('max: %s  ptr_boundery: %s  ptr_feature: %s  len: %s' % (max, ptr_boundery, ptr_feature, len(features)))
     return ptr_boundery, ptr_feature
 
 
@@ -75,6 +76,7 @@ class DTree(object):
       max = var; ptr = randomIndex[-1]
     return max, ptr
 
+
   def __setNLeaf(self, feature, index, _tree):
     '''设置非叶结点'''
     _tree['feature'] = feature
@@ -83,6 +85,7 @@ class DTree(object):
     _tree['less'] = {}
     _tree['greater'] = {}
 
+
   def __setLeaf(self, trainIndex, _tree):
     _tree['predict'] = calcMean(trainIndex) * self.learing_rate
     _tree['isLeaf'] = True
@@ -90,6 +93,7 @@ class DTree(object):
     F = get_value('F')
     for index in trainIndex:
       F[index] += _tree['predict']
+
 
   def build(self, trainDataIndex, features):
     '''建造DTree'''
@@ -142,8 +146,10 @@ class DTree(object):
   def getTree(self):
     return self.tree
 
+
   def setTree(self, tree):
     self.tree = tree
+
 
   def predict(self, sample):
     '''对sample进行预测'''

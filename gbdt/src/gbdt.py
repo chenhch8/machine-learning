@@ -63,7 +63,7 @@ class GDBT(object):
     end = time.time()
     print('训练完成，用时 %smin' % ((end - start) / 60.0))
     # [3] 保存决策树集合
-    saveJson('../output/gbdt_result.json', self.dtrees)
+    saveJson('../output/gbdt_result_tmp.json', self.dtrees)
     # [4] 测试样本测试
     self.predictTestData()
 

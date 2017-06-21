@@ -7,6 +7,8 @@ __author__ = 'chenhch8'
 from utils import loadTrainData
 from gbdt import GDBT
 import os
+import multiprocessing
+from globalVar import set_value
 
 if __name__ == '__main__':
   # 树数量 叶子数量
@@ -18,12 +20,17 @@ if __name__ == '__main__':
 
   if choice == 1:
     print('开始训练模型')
+    # 创建进程池
+    Pool = multiprocessing.Pool(processes = 2)
+    set_value('Pool', Pool)
     filename = os.path.join('..', 'data', 'train_data_smaller.txt')
     # 装载数据
     loadTrainData(filename)
     myGdbt = GDBT(tree_size, leaf_size, learing_rate)
     # 开始训练
     myGdbt.buildGDBT()
+    Pool.close()
+    Pool.join()
     # myGdbt.predictTestData()
   elif choice == 2:
     print('开始进行预测')
