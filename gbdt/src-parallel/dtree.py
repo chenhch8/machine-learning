@@ -11,21 +11,35 @@ from utils import *
 import numpy as np
 import queue
 # 多进程
-from multiprocessing import Pool, Manager
 import os
+import time
+from multiprocessing import sharedctypes as sct
+import ctypes
 
-global train_data, train_class
-mytest = Manager().dict()
+
+def initile(sh_train_data_, sh_shape_, sh_rdl_):
+  global sh_train_data, sh_shape, sh_rdl
+  sh_train_data, sh_shape, sh_rdl = sh_train_data_, sh_shape_, sh_rdl_
+
+
+# 设置共享变量
+def setShareMem():
+  train_data, residual = get_value('train_data'),  get_value('residual')
+  sh_shape = sct.RawArray(ctypes.c_int, train_data.shape)
+  sh_train_data = sct.RawArray(ctypes.c_double, train_data.flat)
+  sh_rdl = sct.RawArray(ctypes.c_double, residual)
+  set_value('residual', sh_rdl)
+  return sh_train_data, sh_shape, sh_rdl
+
 
 def bestBoundary(feature, randomIndex):
   '''寻找最优分割——最小化方差'''
-  residual = mytest['residual']
-  max = None; ptr = None
+  max, ptr = None, None
   size = len(randomIndex)
   # 遍历每个可能的分界线，注意，最后一个不会被遍历到
   for index, value in enumerate(randomIndex):
     # 左半均值 右半均值
-    means = np.array([calcMean(randomIndex[:index], residual), calcMean(randomIndex[index:], residual)])
+    means = np.array([calcMean(randomIndex[:index], sh_rdl), calcMean(randomIndex[index:], sh_rdl)])
     # 权重
     weights = np.array([index / size, (size - index) / size])
     # 加权平均方差
@@ -35,7 +49,7 @@ def bestBoundary(feature, randomIndex):
     elif max < var:
       max = var; ptr = value
   # 计算当分界线为最后一个元素时
-  means = calcMean(randomIndex, residual)
+  means = calcMean(randomIndex, sh_rdl)
   var = means**2
   if max == None:
     max = var; ptr = randomIndex[-1]
@@ -44,13 +58,12 @@ def bestBoundary(feature, randomIndex):
   return max, ptr
 
 def findBestBoundaryHelper(randomIndex, features):
-  train_data = mytest['train_data']
   max = None
   for feature in features:
     # 特征值去重
-    _randomIndex = decrease(feature, randomIndex, train_data)
+    _randomIndex = decrease(feature, randomIndex, sh_train_data, sh_shape)
     # [2] 特征值排序
-    quitSort(feature, 0, len(_randomIndex) - 1, _randomIndex, train_data)
+    quitSort(feature, 0, len(_randomIndex) - 1, _randomIndex, sh_train_data, sh_shape)
     # [3] 寻找当前特征下的最优分割
     var, boundery = bestBoundary(feature, _randomIndex)
     if max == None:
@@ -58,8 +71,8 @@ def findBestBoundaryHelper(randomIndex, features):
     elif max < var:
       max = var; ptr_boundery = boundery; ptr_feature = feature
   # 返回第几个样本，第几个特征
-  # print('id: %s  max: %s  ptr_boundery: %s  ptr_feature: %s  len: %s' % (os.getpid(), max, ptr_boundery, ptr_feature, len(features)))
   return max, ptr_boundery, ptr_feature
+
 
 class DTree(object):
   def __init__(self, leaf_size, learing_rate):
@@ -71,15 +84,12 @@ class DTree(object):
     self.learing_rate = learing_rate
     # 决策树
     self.tree = {}
-    global train_data, train_class
-    # 获取共享数据
-    train_data = get_value('train_data')
-    train_class = get_value('train_class')
-    mytest['train_data'] = get_value('train_data')
-    mytest['residual'] = get_value('residual')
-    # print('jjjjjjjj', hex(id(train_data)))
+    global train_data, train_class, residual
+    train_data, train_class, residual = get_value('train_data'), get_value('train_class'), get_value('residual')
     self.min_size = int(train_data.shape[1] * 0.001)
     self.max_size = int(train_data.shape[1] * 0.005)
+    global pool_size
+    pool_size = get_value('pool_size')
 
 
   def __findBestBoundary(self, trainDataIndex, features):
@@ -91,15 +101,12 @@ class DTree(object):
     # 获取进程池
     pool = get_value('Pool')
     result = []
-    # 参数设置
-    mytest['randomIndex'] = randomIndex
-    mytest['features'] = features
     # 并行化计算最优分割
     if len(features) >= 12:
-      size = int(len(features) / 2)
-      for i in range(2):
-        if i < 3:
-          result.append(pool.apply_async(findBestBoundaryHelper, (randomIndex.copy(), features[i*size:(i+1)*size])))
+      size = int(len(features) / pool_size)
+      for i in range(pool_size):
+        if i < pool_size - 1:
+          result.append(pool.apply_async(findBestBoundaryHelper, (randomIndex, features[i*size:(i+1)*size])))
         else:
           result.append(pool.apply_async(findBestBoundaryHelper, (randomIndex, features[i*size:])))
     else:
@@ -107,13 +114,11 @@ class DTree(object):
 
     max = None
     for item in result:
-      value = item.get()
-      var, boundery, feature = value
+      var, boundery, feature = item.get()
       if max == None:
         max, ptr_boundery, ptr_feature = var, boundery, feature
       elif max < var:
         max, ptr_boundery, ptr_feature = var, boundery, feature
-    print('max: %s  ptr_boundery: %s  ptr_feature: %s  len: %s' % (max, ptr_boundery, ptr_feature, len(features)))
     return ptr_boundery, ptr_feature
 
 
@@ -127,7 +132,6 @@ class DTree(object):
 
 
   def __setLeaf(self, trainIndex, _tree):
-    residual = mytest['residual']
     _tree['predict'] = calcMean(trainIndex, residual) * self.learing_rate
     _tree['isLeaf'] = True
     # 更新估计值

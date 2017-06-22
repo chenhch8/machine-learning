@@ -1,5 +1,6 @@
 gbdt/src/.tags
 gbdt/src/__pycache__/*
+gbdt/src-parallel/__pycache__/*
 gbdt/data/train_data/*
 gbdt/data/*
 gbdt/net/*

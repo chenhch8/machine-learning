@@ -63,6 +63,10 @@ def loadTrainData(filename, pen = 0.9):
   set_value('train_class', train_class)
   set_value('test_data', test_data)
   set_value('test_class', test_class)
+  # 设置估计值
+  set_value('F', np.zeros(train_class.shape, dtype=float))
+  # 设置残差
+  set_value('residual', np.zeros(train_class.shape, dtype=float))
 
   print('数据载入完成，耗时：%ss' % (time.time() - start))
   size = int(sys.getsizeof(train_data)) / 1024.0 / 1024.0 / 1024.0
@@ -72,25 +76,31 @@ def loadTrainData(filename, pen = 0.9):
 '''
 对train_data的第index行进行排序
 '''
-def quitSort(index, left, right, indexList, train_data):
+def quitSort(index, left, right, indexList, train_data, shape):
   if left >= right:
     return
   mid = np.random.randint(left, right+1)
   __swap(indexList, left, mid)
   i = left + 1; j = right
-  temp = train_data[index][indexList[left]]
+  # temp = train_data[index][indexList[left]]
+  raw_sum = shape[1] * index
+  temp = train_data[raw_sum + indexList[left]]
   while i <= j:
-    while i <= right and train_data[index][indexList[i]] < temp:
+    # while i <= right and train_data[index][indexList[i]] < temp:
+    #   i += 1
+    # while j > left and train_data[index][indexList[j]] > temp:
+    #   j -= 1
+    while i <= right and train_data[raw_sum + indexList[i]] < temp:
       i += 1
-    while j > left and train_data[index][indexList[j]] > temp:
+    while j > left and train_data[raw_sum + indexList[j]] > temp:
       j -= 1
     if i <= j:
       __swap(indexList, i, j)
       i += 1; j -= 1
   if j >= left:
     __swap(indexList, left, j)
-  quitSort(index, left, j - 1, indexList, train_data)
-  quitSort(index, j + 1, right, indexList, train_data)
+  quitSort(index, left, j - 1, indexList, train_data, shape)
+  quitSort(index, j + 1, right, indexList, train_data, shape)
 
 '''
 找到k，同时将小于k的和大于k的划分到两边
@@ -136,14 +146,18 @@ def pitch(lists, n = 100):
 '''
 from collections import defaultdict
 
-def decrease(feature, lists, train_data):
+def decrease(feature, lists, train_data, shape):
   # print('size:', hex(id(train_data)))
+  sum_count = feature * shape[1]
   # [1] 去重
   obj = defaultdict(lambda: None)
   for i in lists:
-    if obj[train_data[feature][i]] == None:
-      obj[train_data[feature][i]] = []
-    obj[train_data[feature][i]].append(i)
+    # if obj[train_data[feature][i]] == None:
+    #   obj[train_data[feature][i]] = []
+    # obj[train_data[feature][i]].append(i)
+    if obj[train_data[sum_count + i]] == None:
+      obj[train_data[sum_count + i]] = []
+    obj[train_data[sum_count + i]].append(i)
   # [2] 抽取
   result = []
   for v in obj.values():

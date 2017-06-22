@@ -35,8 +35,9 @@ class GDBT(object):
     F, residual = get_value('F'), get_value('residual')
     for index in range(train_class.shape[0]):
       residual[index] = train_class[index] - F[index]
-    mean = np.mean(abs(residual))
-    print('均值残差：%s' % mean)
+    _mean = np.mean(abs(residual))
+    # print('均值残差：%s' % mean)
+    return _mean
 
 
   def buildGDBT(self):
@@ -53,9 +54,10 @@ class GDBT(object):
     for i in range(self.tree_size):
       print('训练第 #%d 棵树...' % (i + 1))
       # [1] 计算残差
-      self.__calcLoss()
+      _mean = self.__calcLoss()
       # [2] 匹配最优残差决策树 + 更新估计值
       dtree.build(trainDataIndex, features.copy())
+      print('均值残差：%s  累积耗时：%ss' % (_mean, time.time() - start))
       # [3] 将生成的决策树加入树集合中
       self.dtrees['tree_' + str(i)] = dtree.getTree()
       # [4] 清除tree，给下一轮迭代使用

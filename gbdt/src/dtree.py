@@ -47,7 +47,7 @@ class DTree(object):
       elif max < var:
         max = var; ptr_boundery = boundery; ptr_feature = feature
     # 返回第几个样本，第几个特征
-    print('max: %s  ptr_boundery: %s  ptr_feature: %s  len: %s' % (max, ptr_boundery, ptr_feature, len(features)))
+    # print('max: %s  ptr_boundery: %s  ptr_feature: %s  len: %s' % (max, ptr_boundery, ptr_feature, len(features)))
     return ptr_boundery, ptr_feature
 
 
