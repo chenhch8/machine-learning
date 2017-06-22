@@ -124,10 +124,11 @@ $$
 │   └── train_data.txt ---------------- 训练样本数据集
 ├── output ---------------------------- 输出结果
 │   ├── gbdt_result.json -------------- gbdt模型
-│   └── test_result.txt --------------- 测试结果
-├── output-parallel ------------------- 并行化输出结果
-│   ├── ......
+│   ├── test_result.txt --------------- 测试结果
+|   ├── parallel_gbdt_result.json ----- 并行化gbdt模型
+│   └── parallel_test_result.txt ------ 并行化测试结果
 ├── src ------------------------------- 源文件
+│   ├── config.py
 │   ├── dtree.py
 │   ├── gbdt.py
 │   ├── globalVar.py
