@@ -36,28 +36,25 @@ class GDBT(object):
     for index in range(train_class.shape[0]):
       residual[index] = train_class[index] - F[index]
     _mean = np.mean(abs(residual))
-    # print('均值残差：%s' % mean)
     return _mean
 
 
-  def buildGDBT(self):
+  def buildGDBT(self, saveName):
     trainDataIndex = list(range(train_data.shape[1]))
     features = list(range(train_data.shape[0]))
     # 设置估计值
     set_value('F', np.zeros(train_class.shape, dtype=float))
     # 设置残差
     set_value('residual', np.zeros(train_class.shape, dtype=float))
-
-    print('开始训练 %d 棵树，每颗树叶子结点最多为 %d, 学习率为 %s' % (self.tree_size, self.leaf_size, self.learning_rate))
+    print('%d 次迭代，每次迭代训练 1 棵树，每颗树叶子结点最多为 %d, 学习率为 %s' % (self.tree_size, self.leaf_size, self.learning_rate))
     dtree = DTree(self.leaf_size, self.learning_rate)
     start = time.time()
     for i in range(self.tree_size):
-      print('训练第 #%d 棵树...' % (i + 1))
       # [1] 计算残差
       _mean = self.__calcLoss()
       # [2] 匹配最优残差决策树 + 更新估计值
       dtree.build(trainDataIndex, features.copy())
-      print('均值残差：%s  累积耗时：%ss' % (_mean, time.time() - start))
+      print('迭代 #%d  均值残差：%s  累积耗时：%s s' % (i + 1, _mean, time.time() - start))
       # [3] 将生成的决策树加入树集合中
       self.dtrees['tree_' + str(i)] = dtree.getTree()
       # [4] 清除tree，给下一轮迭代使用
@@ -65,9 +62,9 @@ class GDBT(object):
     end = time.time()
     print('训练完成，用时 %smin' % ((end - start) / 60.0))
     # [3] 保存决策树集合
-    saveJson('../output/gbdt_result_tmp.json', self.dtrees)
+    saveJson(saveName, self.dtrees)
     # [4] 测试样本测试
-    self.predictTestData()
+    self.predictTestData(saveName)
 
 
   def __predictHelper(self, my_data, my_class, name):
@@ -88,10 +85,10 @@ class GDBT(object):
     print('\t总耗时：%ss； 平均耗时：%ss' % (pried, pried / my_class.shape[0]))
 
 
-  def predictTestData(self):
+  def predictTestData(self, saveName):
     '''误差计算'''
     if len(self.dtrees) == 0:
-      self.dtrees = loadJson('../output/gbdt_result.json')
+      self.dtrees = loadJson(saveName)
     print('误差计算中...')
     self.__predictHelper(train_data.T, train_class, '训练集')
 

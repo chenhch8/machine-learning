@@ -6,7 +6,7 @@ __author__ = 'chenhch8'
 
 from utils import loadTrainData
 from gbdt import GDBT
-import os
+from config import config
 
 if __name__ == '__main__':
   # 树数量 叶子数量
@@ -18,20 +18,15 @@ if __name__ == '__main__':
 
   if choice == 1:
     print('开始训练模型')
-    filename = os.path.join('..', 'data', 'train_data_smaller.txt')
     # 装载数据
-    loadTrainData(filename)
+    loadTrainData(config['trainData'])
     myGdbt = GDBT(tree_size, leaf_size, learing_rate)
     # 开始训练
-    myGdbt.buildGDBT()
-    # myGdbt.predictTestData()
+    myGdbt.buildGDBT(config['targetModel'])
   elif choice == 2:
     print('开始进行预测')
-    filename = os.path.join('..', 'output', 'gbdt_result_tmp.json')
-    test_filename = os.path.join('..', 'data', 'test_data_tmp.txt')
-    saveName = os.path.join('..', 'output', 'test_result_tmp.txt')
     myGdbt = GDBT(tree_size, leaf_size, learing_rate)
     # 开始预测
-    myGdbt.startPredict(filename, test_filename, saveName)
+    myGdbt.startPredict(config['targetModel'], config['targetData'], config['result'])
   else:
     print('选择错误')
