@@ -14,7 +14,7 @@ from config import config
 
 if __name__ == '__main__':
   # 树数量 叶子数量
-  tree_size, leaf_size = 100, 20
+  tree_size, leaf_size = 250, 30
   learing_rate = 0.1
   # 进程池中进程数量
   pool_size = 4

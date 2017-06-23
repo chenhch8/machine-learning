@@ -10,7 +10,7 @@ from config import config
 
 if __name__ == '__main__':
   # 树数量 叶子数量
-  tree_size, leaf_size = 100, 20
+  tree_size, leaf_size = 300, 30
   learing_rate = 0.1
 
   choice = input('1. 训练模型； 2. 预测数据：')

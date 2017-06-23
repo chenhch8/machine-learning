@@ -3,8 +3,10 @@ gbdt/src-parallel/.tags
 gbdt/src/__pycache__/*
 gbdt/src-parallel/__pycache__/*
 gbdt/data/train_data/*
+gbdt/diagram/*
 gbdt/data/*
 gbdt/xgb/*
+gbdt/实验报告*
 gbdt/net/*
 !/gbdt/data/数据格式说明.txt
 gbdt/output/*
