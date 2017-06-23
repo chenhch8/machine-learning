@@ -117,6 +117,33 @@ $$
 ### 数据处理注意
 - 在寻找最优决策树时，如果要计算的特征值过多，则可以通过随机采样其中若干个来计算，这样能加快运算速度。我是每次随机抽取1000个特征值进行计算
 
+### 实验问题记录
+1. 在进行并行化时，我采用的思路时，利用多进程来并行计算最优特征分割点。然而，由于在python的多进程中，参数的传递的方式是深拷贝，而特征矩阵非常大，所有这就造成了多进程的计算速度反而比单进程的慢！于是我采用了共享内存的方式，将特征矩阵存入共享内存中。在python中，共享内存有两种方式，分别是’Manager‘和’sharetypes‘的方式，前者其实依旧是采用深拷贝的方式，而后者才是我所需的浅拷贝。在使用’sharetypes‘实现共享内存后，多进程的优势就体现出来了，计算最优特征分割点的速度明显得到提升。下面简短举个例子记录下如何使用这种方式：
+```python
+from multiprocessing import Pool
+from multiprocessing import sharetypes as sct
+import numpy as np
+import ctyps
+
+# 进程池初始化时调用函数
+def init(matrix_):
+    # 设置共享变量
+    global matrix
+    matrix = matrix_
+
+# 创建共享变量
+sh = sct.RawArray(ctyps.c_float, np.random.randn(5))
+# 创建进程池
+pool = Pool(processes = 4, initializer = init, initargs = (sh, ))
+
+# 测试函数
+def test(*args):
+    '''这里就可以直接使用共享变量matrix'''
+
+# 从进程池中分配一个进程用于调用test函数
+pool.apply.async(test, (...))
+```
+
 ### 目录说明
 ```
 .
