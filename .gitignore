@@ -12,3 +12,4 @@ gbdt/net/*
 gbdt/output/*
 lr/code/*.out
 2/*
+python数据分析与挖掘学习笔记/src/.*
