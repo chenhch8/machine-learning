@@ -18,7 +18,7 @@ data[u'销量'][(data[u'销量'] < 400) | (data[u'销量'] > 5000)] = None
 # 插值函数
 # s为列向量，n为被插值的位置，k为取前后的数据个数
 def ployinterp_column(s, n, k = 5):
-  # 取值，通过下标索引
+  # 取值，通过下标索引(s类型为np.array)
   y = s[list(range(n - k, n)) + list(range(n + 1, n + 1 + k))]
   # 剔除空值
   y = y[y.notnull()]
